@@ -146,6 +146,18 @@ Body: file=<audio> или { "url": "https://..." }
 
 ---
 
+## Рекомендуемый план работ
+
+| День | Этап | Что нужно сделать |
+|---|---|---|
+| **1** | Инфраструктура | Развернуть OpenWebUI локально, настроить LLM-бэкенд, создать базовый Pipeline, убедиться что чат работает |
+| **2** | ASR Pipeline | Интегрировать faster-whisper, загрузка аудио, базовая диаризация, структурированный транскрипт |
+| **3** | Агенты | Реализовать 4 агента (классификатор, качество, compliance, суммаризатор), настроить оркестрацию |
+| **4** | API + тесты | FastAPI эндпоинт, unit-тесты, интеграционные тесты, .env, JSON-логирование |
+| **5** | Деплой + документация | Публичный хост, README с архитектурной схемой, прогон 10 сэмплов, финальная проверка |
+
+---
+
 ## Рекомендуемая структура репозитория
 
 ```
@@ -167,6 +179,30 @@ your-repo/
 ├── docker-compose.yml
 ├── .env.example
 └── README.md                  # Ваша документация
+```
+
+---
+
+### Минимальный скелет Pipeline класса
+
+Это не обязательный шаблон, а отправная точка. Можете отклониться — обоснуйте в README.
+
+```python
+class Pipeline:
+    class Valves(BaseModel):              # конфигурация через OpenWebUI UI
+        LLM_BASE_URL: str = "http://llm:8000/v1"
+        LLM_MODEL: str = "qwen2.5:7b"
+        WHISPER_MODEL: str = "medium"
+
+    async def on_startup(self):           # инициализация при запуске
+        self.transcriber = Transcriber(self.valves.WHISPER_MODEL)
+        self.agents = self._init_agents()
+
+    async def pipe(self, body, __user__=None):
+        audio_url = self._extract_audio(body)       # из сообщения пользователя
+        transcript = await self.transcriber.run(audio_url)
+        results = await self._run_agents(transcript)
+        return self._format_response(results)       # markdown для чата
 ```
 
 ---
