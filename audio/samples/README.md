@@ -1,36 +1,45 @@
 # Тестовые аудио-сэмплы
 
-10 записей реальной русской речи из открытых источников для тестирования ASR-пайплайна.
+10 записей **реальной спонтанной русской речи** с эталонными транскриптами. Источник — открытые сэмплы датасетов [Nexdata](https://github.com/Nexdata-AI) (публикуются как демо коммерческих речевых корпусов).
 
-| Файл | Формат | Длит. | Источник |
+**К каждому `.wav` приложен `.txt` с эталонным транскриптом** — используйте их для расчёта WER вашего ASR-компонента.
+
+| Файл | Канал | Длит. | Содержание |
 |---|---|---|---|
-| sample_01_ru.mp3 | 16kHz mono | 4.9 с | Tinkoff VoiceKit examples |
-| sample_02_ru.mp3 | 16kHz mono | 4.8 с | Tinkoff VoiceKit examples |
-| sample_03_ru.wav | 16kHz mono | 7.4 с | Tinkoff VoiceKit examples |
-| sample_04_ru.wav | 48kHz mono | 3.5 с | Tinkoff VoiceKit examples |
-| sample_05_ru.wav | 48kHz mono | 1.9 с | Tinkoff VoiceKit examples |
-| sample_06_ru.wav | 48kHz mono | 9.9 с | Tinkoff VoiceKit examples |
-| sample_07_ru.wav | 16kHz mono | 3.2 с | pisets (bond005), Apache 2.0 |
-| sample_08_ru.wav | 16kHz mono | 11.3 с | pisets (bond005), Apache 2.0 |
-| sample_09_ru.wav | 16kHz **stereo** | 11.3 с | pisets (bond005), Apache 2.0 |
-| sample_10_ru.wav | 16kHz mono | 4.0 с | Golos (SberDevices) |
+| tel_01.wav | телефон 8kHz | 2.9 с | Спонтанный телефонный диалог |
+| tel_02.wav | телефон 8kHz | 1.6 с | Спонтанный телефонный диалог |
+| tel_03.wav | телефон 8kHz | 3.7 с | Спонтанный телефонный диалог |
+| tel_07.wav | телефон 8kHz | 1.2 с | Спонтанный телефонный диалог (короткая реплика) |
+| conv_15.wav | мобильный 16kHz | 1.7 с | Разговорная речь |
+| conv_33.wav | мобильный 16kHz | 2.1 с | Разговорная речь |
+| conv_40.wav | мобильный 16kHz | 2.4 с | Разговорная речь |
+| spont_1.wav | микрофон 16kHz | 3.8 с | Спонтанный монолог |
+| spont_6.wav | микрофон 16kHz | 3.3 с | Спонтанный монолог |
+| spont_9.wav | микрофон 16kHz | 3.8 с | Спонтанный монолог |
 
-## Зачем разные форматы
+Все файлы нормализованы до −16 LUFS.
 
-Сэмплы намеренно разнородны — ваш pipeline должен обрабатывать всё:
-- **Разные sample rate** (16kHz / 48kHz) — проверка ресемплинга
-- **MP3 и WAV** — проверка декодирования форматов
-- **Стерео** (sample_09) — проверка downmix / канальной обработки
-- **Разная длительность** (2–11 сек) — короткие фразы и длинные предложения
+## Почему именно эти сэмплы
 
-## Источники и лицензии
+- **Телефонный канал 8kHz (tel_*)** — главный тест. Записи звонков колл-центра приходят именно в таком качестве. Whisper обучен преимущественно на 16kHz — посмотрим, как ваш pipeline справится с апсемплингом и телефонным кодеком.
+- **Спонтанная речь, не диктовка** — паузы, «э-э», самоисправления, обрывы слов ([S], [N] в транскриптах — спикер-шум и посторонний шум). Это реальность колл-центра.
+- **Эталонные транскрипты** — обязательно посчитайте WER (например, через `jiwer`) и приложите таблицу к README.
 
-- **Tinkoff VoiceKit examples** — https://github.com/Tinkoff/voicekit-examples (Apache 2.0)
-- **pisets** — https://github.com/bond005/pisets (Apache 2.0)
-- **Golos** — https://github.com/salute-developers/golos (публичная лицензия SberDevices)
+## Обозначения в транскриптах
+
+- `[S]` — шум от спикера (кашель, вздох)
+- `[N]` — фоновый шум
+- Дефис в конце слова (`чу-`) — оборванное слово
 
 ## Как использовать в задании
 
-Прогоните все 10 файлов через ваш ASR-компонент и приложите к README таблицу с транскриптами. Это быстрый способ показать что pipeline работает на разных входных данных.
+1. Прогоните все 10 файлов через ваш ASR-компонент
+2. Посчитайте WER против эталонных `.txt` (нормализуйте текст: нижний регистр, без пунктуации и шумовых меток)
+3. Приложите к README таблицу: файл → ваш транскрипт → WER
 
-Для демонстрации Multi-Agent аналитики (диалог оператор/клиент) синтезируйте полный звонок по сценарию из [`../docs/sample-dialog.md`](../../docs/sample-dialog.md) через edge-tts или Silero — команды в том же файле.
+Для демонстрации Multi-Agent аналитики (полный диалог оператор/клиент) синтезируйте звонок 2–4 минуты по сценарию из [`../../docs/sample-dialog.md`](../../docs/sample-dialog.md).
+
+## Лицензия
+
+Сэмплы — публичные демо-файлы Nexdata, опубликованные в открытых GitHub-репозиториях для ознакомления:
+[93-Hours-Russian-Conversational-Speech-Data-by-Telephone](https://github.com/Nexdata-AI/93-Hours-Russian-Conversational-Speech-Data-by-Telephone), [107-Hours-Russian-Conversational-Speech-Data-by-Mobile-Phone](https://github.com/Nexdata-AI/107-Hours-Russian-Conversational-Speech-Data-by-Mobile-Phone), [503-Hours-Russian-Spontaneous-Speech-Data](https://github.com/Nexdata-AI/503-Hours-Russian-Spontaneous-Speech-Data). Используются исключительно в учебных целях тестового задания.
